@@ -1,0 +1,13 @@
+{
+    "root": "/eos",
+    "endpoint": "api.eosnewyork.io",
+    "protocol": "http",
+    "urls": [
+        {
+	    "source": "/get_info",
+            "target": "/v1/chain/get_info",
+	    "method": "get",
+	    "params": []
+	}
+    ]
+}

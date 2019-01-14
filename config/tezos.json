@@ -1,0 +1,13 @@
+{
+    "root": "/tezos",
+    "endpoint": "localhost:8732",
+    "protocol": "http",
+    "urls": [
+        {
+	    "source": "/balance/:account",
+            "target": "/chains/main/blocks/head/context/delegates/$account/balance",
+	    "method": "get",
+	    "params": ["account"]
+	}
+    ]
+}
