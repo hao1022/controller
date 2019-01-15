@@ -2,11 +2,15 @@
     "root": "/tezos",
     "endpoint": "localhost:8732",
     "protocol": "http",
-    "urls": [
+    "URLs": [
         {
-	    "source": "/balance/:account",
-            "target": "/chains/main/blocks/head/context/delegates/$account/balance",
-	    "method": "get",
+	    "url": "/balance/:account",
+            "source": "/chains/main/blocks/head/context/delegates/$account/balance",
+	    "params": ["account"]
+	},
+        {
+	    "url": "/staking_balance/:account",
+            "source": "/chains/main/blocks/head/context/delegates/$account/staking_balance",
 	    "params": ["account"]
 	}
     ]

@@ -2,10 +2,9 @@
     "root": "/gxchain",
     "endpoint": "node1.gxb.io/rpc",
     "protocol": "https",
-    "urls": [
+    "URLs": [
         {
-	    "source": "/:method",
-            "target": "",
+	    "url": "/:method",
 	    "method": "post",
 	    "data": "{\"jsonrpc\":\"2.0\",\"method\":\"call\",\"params\":[0,\"$method\",[[\"light\"],false]],\"id\":1}",
 	    "params": ["method"]

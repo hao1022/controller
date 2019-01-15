@@ -2,12 +2,17 @@
     "root": "/eos",
     "endpoint": "api.eosnewyork.io",
     "protocol": "http",
-    "urls": [
+    "URLs": [
         {
-	    "source": "/get_info",
-            "target": "/v1/chain/get_info",
-	    "method": "get",
-	    "params": []
+	    "url": "/get_info",
+            "source": "/v1/chain/get_info"
+	},
+        {
+	    "url": "/get_block_header_state/:block_num_or_id",
+            "source": "/v1/chain/get_block_header_state",
+	    "method": "post",
+	    "data": "{\"block_num_or_id\":\"$block_num_or_id\"}",
+	    "params": ["block_num_or_id"]
 	}
     ]
 }
