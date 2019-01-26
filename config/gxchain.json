@@ -5,7 +5,9 @@
     "URLs": [
         {
 	    "url": "/:method",
+	    "source": "",
 	    "method": "post",
+	    "content_type": "application/json",
 	    "data": "{\"jsonrpc\":\"2.0\",\"method\":\"call\",\"params\":[0,\"$method\",[[\"light\"],false]],\"id\":1}",
 	    "params": ["method"]
 	}

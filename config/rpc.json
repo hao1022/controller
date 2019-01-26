@@ -1,0 +1,10 @@
+{
+    "root": "",
+    "protocol": "http",
+    "URLs": [
+        {
+	    "method": "rpc",
+	    "url": "/rpc"
+	}
+    ]
+}
