@@ -23,8 +23,12 @@ type BackupReply struct {
 }
 
 func (h *Service) Backup(r *http.Request, args *BackupArgs, reply *BackupReply) error {
-	model.Backup(args.Chain)
-	reply.Message = "Succeed"
+	err := model.Backup(args.Chain)
+	if err != nil {
+		reply.Message = "Error"
+	} else {
+		reply.Message = "Succeed"
+	}
 	return nil
 }
 
