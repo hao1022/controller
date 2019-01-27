@@ -7,14 +7,19 @@ import (
 )
 
 func backupTron() {
-    cmd := "/home/ubuntu/configuration/tron/backup.sh"
-    args := []string{}
-    if err := exec.Command(cmd, args...).Run(); err != nil {
-        fmt.Fprintln(os.Stderr, err)
-        os.Exit(1)
+    cmd := exec.Command("/home/ubuntu/configuration/tron/backup.sh")
+    cmd.Stdout = os.Stdout
+    err := cmd.Start()
+    if err != nil {
 	fmt.Println("Error backing up tron data")
+    } else {
+        fmt.Println("Successfully backed up tron data")
     }
-    fmt.Println("Successfully backed up tron data")
+    // use goroutine waiting, manage process
+    // this is important, otherwise the process becomes in S mode
+    go func() {
+        err = cmd.Wait()
+    }()
 }
 
 func Backup(chain string) {
