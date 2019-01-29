@@ -1,17 +1,97 @@
 {
     "root": "/tezos",
-    "endpoint": "localhost:8732",
+    "endpoint": "mainnet-node.tzscan.io:8732",
     "protocol": "http",
     "URLs": [
-        {
-	    "url": "/balance/:account",
-            "source": "/chains/main/blocks/head/context/delegates/$account/balance",
-	    "params": ["account"]
-	},
         {
 	    "url": "/staking_balance/:account",
             "source": "/chains/main/blocks/head/context/delegates/$account/staking_balance",
 	    "params": ["account"]
+	},
+	{
+	    "url": "/current_level",
+	    "source": "/chains/main/blocks/head/helpers/current_level",
+	    "params": []
+	},
+	{
+	    "url": "/blockheader",
+	    "source": "/chains/main/blocks/head/header",
+	    "params": []
+	},
+	{
+	    "url": "/metadata",
+	    "source": "/chains/main/blocks/head/metadata",
+	    "params": []
+	},
+	{
+	    "url": "/endorsing_rights",
+	    "source": "/chains/main/blocks/head/helpers/endorsing_rights?level=$level&cycle=$cycle&delegate=$delegate",
+	    "query": ["level", "cycle", "delegate"]
+	},
+	{
+	    "url": "/baking_rights",
+	    "source": "/chains/main/blocks/head/helpers/baking_rights?level=$level&cycle=$cycle&delegate=$delegate&max_priority=$max_priority",
+	    "query": ["level", "cycle", "delegate", "max_priority"]
+	},
+	{
+	    "url": "/operations",
+	    "source": "/chains/main/blocks/head/operations",
+	    "params": []
+	},
+	{
+	    "url": "/delegated_contracts/:account",
+	    "source": "/chains/main/blocks/head/context/delegates/$account/delegated_contracts",
+	    "params": ["account"]
+	},
+	{
+	    "url": "/delegated_balance/:account",
+	    "source": "/chains/main/blocks/head/context/delegates/$account/delegated_balance",
+	    "params": ["account"]
+	},
+        {
+	    "url": "/delegate_balance/:account",
+            "source": "/chains/main/blocks/head/context/delegates/$account/balance",
+	    "params": ["account"]
+	},
+        {
+	    "url": "/frozen_balance/:account",
+            "source": "/chains/main/blocks/head/context/delegates/$account/frozen_balance",
+	    "params": ["account"]
+	},
+        {
+	    "url": "/frozen_balance_by_cycle/:account",
+            "source": "/chains/main/blocks/head/context/delegates/$account/frozen_balance_by_cycle",
+	    "params": ["account"]
+	},
+        {
+	    "url": "/balance/:contract",
+            "source": "/chains/main/blocks/head/context/contracts/$contract/balance",
+	    "params": ["contract"]
+	},
+        {
+	    "url": "/counter/:contract",
+            "source": "/chains/main/blocks/head/context/contracts/$contract/counter",
+	    "params": ["contract"]
+	},
+        {
+	    "url": "/manager_key/:contract",
+            "source": "/chains/main/blocks/head/context/contracts/$contract/manager_key",
+	    "params": ["contract"]
+	},
+        {
+	    "url": "/block/:hash",
+            "source": "/chains/main/blocks/$hash",
+	    "params": ["hash"]
+	},
+        {
+	    "url": "/blocks",
+            "source": "/chains/main/blocks",
+	    "params": []
+	},
+        {
+	    "url": "/protocols",
+            "source": "/chains/main/protocols",
+	    "params": []
 	}
     ]
 }

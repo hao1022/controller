@@ -22,15 +22,20 @@ func GetServer() *gorilla_rpc.Server {
     Server.RegisterCodec(json.NewCodec(), "application/json")
     Server.RegisterCodec(json.NewCodec(), "application/json;charset=UTF-8")
 
-    handler := new(rpc.Service)
+    handler := new(rpc.CommonService)
     Server.RegisterService(handler, "")
     return Server
 }
 
-func makeContext(c *gin.Context, params []string, ctxt map[string]string) {
+func makeContext(c *gin.Context, params []string, queries []string, ctxt map[string]string) {
     if params != nil {
         for _, param := range params {
             ctxt[param] = c.Param(param)
+	}
+    }
+    if queries != nil {
+        for _, query := range queries {
+            ctxt[query] = c.Query(query)
 	}
     }
 }
@@ -42,19 +47,21 @@ func RegisterRoutes(router *gin.Engine) {
 
 	    // GET method
 	    if route.Method == "" || route.Method == "get" {
+		config_, route_ := config, route
 	        router.GET(url, func(c *gin.Context) {
                     context := make(map[string]string)
-		    makeContext(c, route.Params, context)
-		    c.Writer.Write(rpc.Get(config, route, context))
+		    makeContext(c, route_.Params, route_.Query, context)
+		    c.Writer.Write(rpc.Get(config_, route_, context))
 		})
 	    }
 
 	    // POST method
 	    if route.Method == "post" {
+		config_, route_ := config, route
 	        router.POST(url, func(c *gin.Context) {
                     context := make(map[string]string)
-		    makeContext(c, route.Params, context)
-		    c.Writer.Write(rpc.Post(config, route, context))
+		    makeContext(c, route_.Params, route_.Query, context)
+		    c.Writer.Write(rpc.Post(config_, route_, context))
 		})
 	    }
 

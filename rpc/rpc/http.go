@@ -17,6 +17,7 @@ type URLType struct {
     Data string `json:"data"`
     ContentType string `json:"content_type"`
     Params []string `json:"params"`
+    Query []string `json:"query"`
 }
 
 type ConfigType struct {
@@ -48,9 +49,11 @@ func (config *ConfigType) ReadConfigFile(filename string) {
 
 func Get(config ConfigType, route URLType, context map[string]string) []byte {
     source := route.Source
-    for param, value := range context {
-        pattern := "$" + param
-        source = strings.Replace(source, pattern, value, -1)
+    if context != nil {
+        for param, value := range context {
+            pattern := "$" + param
+            source = strings.Replace(source, pattern, value, -1)
+        }
     }
     url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Endpoint, source)
     resp, _ := http.Get(url)
@@ -62,10 +65,12 @@ func Get(config ConfigType, route URLType, context map[string]string) []byte {
 func Post(config ConfigType, route URLType, context map[string]string) []byte {
     source := route.Source
     data_str := route.Data
-    for param, value := range context {
-        pattern := "$" + param
-	source = strings.Replace(source, pattern, value, -1)
-	data_str = strings.Replace(data_str, pattern, value, -1)
+    if context != nil {
+        for param, value := range context {
+            pattern := "$" + param
+	    source = strings.Replace(source, pattern, value, -1)
+	    data_str = strings.Replace(data_str, pattern, value, -1)
+	}
     }
     url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Endpoint, source)
     data := []byte(data_str)

@@ -9,7 +9,7 @@ import (
     "net/http"
 )
 
-type Service struct{}
+type CommonService struct{}
 
 /*
  * Backup RPC
@@ -22,14 +22,35 @@ type BackupReply struct {
     Message string
 }
 
-func (h *Service) Backup(r *http.Request, args *BackupArgs, reply *BackupReply) error {
+func (h *CommonService) Backup(r *http.Request, args *BackupArgs, reply *BackupReply) error {
 	err := model.Backup(args.Chain)
 	if err != nil {
 		reply.Message = "Error"
 	} else {
 		reply.Message = "Succeed"
 	}
-	return nil
+	return err
 }
 
+type TezosService struct{}
+
+/*
+ * Tezos payout RPC
+ */
+type TezosPayoutArgs struct {
+}
+
+type TezosPayoutReply struct {
+    Message string
+}
+
+func (h *TezosService) Payout(r *http.Request, args *TezosPayoutArgs, reply *TezosPayoutReply) error {
+	err := model.TezosPayout()
+	if err != nil {
+		reply.Message = "Error"
+	} else {
+		reply.Message = "Succeed"
+	}
+	return err
+}
 
