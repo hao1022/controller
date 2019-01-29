@@ -2,7 +2,7 @@ package main
 
 import (
     "fmt"
-    "../../model/tezos"
+    "../../../model/tezos"
     "encoding/json"
 )
 

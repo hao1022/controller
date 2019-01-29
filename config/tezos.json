@@ -9,19 +9,19 @@
 	    "params": ["account"]
 	},
 	{
-	    "url": "/current_level",
-	    "source": "/chains/main/blocks/head/helpers/current_level",
-	    "params": []
+	    "url": "/current_level/:head",
+	    "source": "/chains/main/blocks/$head/helpers/current_level",
+	    "params": ["head"]
 	},
 	{
-	    "url": "/blockheader",
-	    "source": "/chains/main/blocks/head/header",
-	    "params": []
+	    "url": "/blockheader/:head",
+	    "source": "/chains/main/blocks/$head/header",
+	    "params": ["head"]
 	},
 	{
-	    "url": "/metadata",
-	    "source": "/chains/main/blocks/head/metadata",
-	    "params": []
+	    "url": "/metadata/:head",
+	    "source": "/chains/main/blocks/$head/metadata",
+	    "params": ["head"]
 	},
 	{
 	    "url": "/endorsing_rights",
