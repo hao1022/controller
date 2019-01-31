@@ -4,9 +4,9 @@
     "protocol": "http",
     "URLs": [
         {
-	    "url": "/staking_balance/:account",
-            "source": "/chains/main/blocks/head/context/delegates/$account/staking_balance",
-	    "params": ["account"]
+	    "url": "/staking_balance/:head/:account",
+            "source": "/chains/main/blocks/$head/context/delegates/$account/staking_balance",
+	    "params": ["head", "account"]
 	},
 	{
 	    "url": "/current_level/:head",
@@ -24,49 +24,54 @@
 	    "params": ["head"]
 	},
 	{
-	    "url": "/endorsing_rights",
-	    "source": "/chains/main/blocks/head/helpers/endorsing_rights?level=$level&cycle=$cycle&delegate=$delegate",
-	    "query": ["level", "cycle", "delegate"]
+	    "url": "/cycle_info/:head/:cycle",
+	    "source": "/chains/main/blocks/$head/context/raw/json/cycle/$cycle",
+	    "params": ["head", "cycle"]
 	},
 	{
-	    "url": "/baking_rights",
-	    "source": "/chains/main/blocks/head/helpers/baking_rights?level=$level&cycle=$cycle&delegate=$delegate&max_priority=$max_priority",
-	    "query": ["level", "cycle", "delegate", "max_priority"]
+	    "url": "/endorsing_rights/:head/:account/:cycle",
+	    "source": "/chains/main/blocks/$head/helpers/endorsing_rights?cycle=$cycle&delegate=$account",
+	    "query": ["head", "cycle", "account"]
 	},
 	{
-	    "url": "/operations",
-	    "source": "/chains/main/blocks/head/operations",
-	    "params": []
+	    "url": "/baking_rights/:head/:account/:cycle",
+	    "source": "/chains/main/blocks/$head/helpers/baking_rights?cycle=$cycle&delegate=$account",
+	    "query": ["head", "cycle", "delegate"]
 	},
 	{
-	    "url": "/delegated_contracts/:account",
-	    "source": "/chains/main/blocks/head/context/delegates/$account/delegated_contracts",
-	    "params": ["account"]
+	    "url": "/operations/:head",
+	    "source": "/chains/main/blocks/$head/operations",
+	    "params": ["head"]
 	},
 	{
-	    "url": "/delegated_balance/:account",
-	    "source": "/chains/main/blocks/head/context/delegates/$account/delegated_balance",
-	    "params": ["account"]
+	    "url": "/delegated_contracts/:head/:account",
+	    "source": "/chains/main/blocks/$head/context/delegates/$account/delegated_contracts",
+	    "params": ["head", "account"]
+	},
+	{
+	    "url": "/delegated_balance/:head/:account",
+	    "source": "/chains/main/blocks/$head/context/delegates/$account/delegated_balance",
+	    "params": ["head", "account"]
 	},
         {
-	    "url": "/delegate_balance/:account",
-            "source": "/chains/main/blocks/head/context/delegates/$account/balance",
-	    "params": ["account"]
+	    "url": "/delegate_balance/:head/:account",
+            "source": "/chains/main/blocks/$head/context/delegates/$account/balance",
+	    "params": ["head", "account"]
 	},
         {
-	    "url": "/frozen_balance/:account",
-            "source": "/chains/main/blocks/head/context/delegates/$account/frozen_balance",
-	    "params": ["account"]
+	    "url": "/frozen_balance/:head/:account",
+            "source": "/chains/main/blocks/$head/context/delegates/$account/frozen_balance",
+	    "params": ["head", "account"]
 	},
         {
-	    "url": "/frozen_balance_by_cycle/:account",
-            "source": "/chains/main/blocks/head/context/delegates/$account/frozen_balance_by_cycle",
-	    "params": ["account"]
+	    "url": "/frozen_balance_by_cycle/:head/:account",
+            "source": "/chains/main/blocks/$head/context/delegates/$account/frozen_balance_by_cycle",
+	    "params": ["head", "account"]
 	},
         {
-	    "url": "/balance/:contract",
-            "source": "/chains/main/blocks/head/context/contracts/$contract/balance",
-	    "params": ["contract"]
+	    "url": "/balance/:head/:account",
+            "source": "/chains/main/blocks/$head/context/contracts/$account/balance",
+	    "params": ["head", "account"]
 	},
         {
 	    "url": "/counter/:contract",

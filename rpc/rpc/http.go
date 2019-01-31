@@ -42,8 +42,8 @@ func (config *ConfigType) ReadConfigFile(filename string) {
     json.Unmarshal([]byte(byteValue), config)
 
     config.Indices = make(map[string] *URLType)
-    for _, url := range config.URLs {
-        config.Indices[url.URL] = &url
+    for i, url := range config.URLs {
+        config.Indices[url.URL] = &config.URLs[i]
     }
 }
 
@@ -56,6 +56,7 @@ func Get(config ConfigType, route URLType, context map[string]string) []byte {
         }
     }
     url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Endpoint, source)
+    //fmt.Println(url)
     resp, _ := http.Get(url)
     defer resp.Body.Close()
     body, _ := ioutil.ReadAll(resp.Body)

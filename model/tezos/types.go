@@ -68,7 +68,7 @@ type OperationMetadataType struct{
 type OperationContentType struct{
     Kind        string   `json:"kind"`
     Source      string   `json:"source"`
-    Fee         float64  `json:"fee"`
+    Fee         string   `json:"fee"`
     Level       int      `json:"level"`
     Contract    string   `json:"contract"`
     Change      string   `json:"change"`
@@ -86,7 +86,14 @@ type OperationType struct{
 
 type FrozenBalanceByCycleType struct{
     Cycle   int      `json:"cycle"`
-    Deposit float64  `json:"deposit"`
-    Fees    float64  `json:"fees"`
-    Rewards float64  `json:"rewards"`
+    Deposit string   `json:"deposit"`
+    Fees    string   `json:"fees"`
+    Rewards string   `json:"rewards"`
+}
+
+type CycleInfoType struct{
+    LastRoll   []string `json:"last_roll"`
+    Nonces     []string `json:"nonces"`
+    RandomSeed string   `json:"random_seed"`
+    Snapshot   int      `json:"roll_snapshot"`
 }
