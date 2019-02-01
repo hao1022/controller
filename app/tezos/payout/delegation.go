@@ -2,30 +2,22 @@ package main
 
 import (
     "fmt"
+    "math"
     "../../../model/tezos"
     "strconv"
 )
 
-type BakerRewardType struct {
-    SelfReward int
-    FeeReward int
-    LooseReward int
-    TotalReward int
-}
 
 type RewardType struct {
+    Cycle  int
     BakerRewards     BakerRewardType
     Delegators       []string
+    DelegatorRawRewards []int
     DelegatorRewards []int
+    DelegatorBalances []int
+    DelegatorShares  []float32
     StakingBalance   int
-}
-
-type StolenBlockType struct {
-    Level    int
-    Hash     string
-    Priority int
-    Reward   int
-    Fees     int
+    TotalReward      int
 }
 
 func SnapshotHeight(cycle int, snapshot int, cycle_length int,
@@ -39,7 +31,7 @@ func BlockHashByLevel(level int) string {
     head_header := tezos.Header()
     past_head = fmt.Sprintf("%s~%d", head_header.Hash, head_header.Level - level)
     past_header := tezos.HeaderAt(past_head)
-    if (head_header.Level != past_header.Level) {
+    if (level != past_header.Level) {
         fmt.Println("should not happen: tezos rpc fault, wrong level")
     }
     return past_header.Hash
@@ -69,7 +61,8 @@ func SnapshotHash(cycle int, cycle_length int, snapshot_interval int) string {
 func SnapshotLevel(cycle int, cycle_length int, snapshot_interval int) int {
     hash := HashToQuery(cycle, cycle_length)
     cycle_info := tezos.CycleInfo(hash, cycle)
-    return SnapshotHeight(cycle, cycle_info.Snapshot, cycle_length, snapshot_interval)
+    height := SnapshotHeight(cycle, cycle_info.Snapshot, cycle_length, snapshot_interval)
+    return height
 }
 
 func GetContributingBalancesFor(cycle_length int, snapshot_interval int, cycle int, delegate string) (int, []string, []int) {
@@ -132,31 +125,34 @@ func CalculateRewardsFor(cycle_length int, snapshot_interval int, cycle int, del
     staking_balance, delegators, balances := GetContributingBalancesFor(cycle_length,
                                              snapshot_interval, cycle, delegate)
     total_balance := 0
-    for _, balance := range balances[1:] {
+    for _, balance := range balances {
         total_balance += balance
     }
-    baker_balance := balances[0]
-    baker_self_reward := baker_balance * rewards / total_balance
-    baker_fee_reward := fee_percent * rewards * (total_balance - baker_balance) / ( total_balance * 100 )
+    baker_balance := staking_balance - total_balance
+    baker_self_reward := int(float64(rewards) / (float64(staking_balance) / float64(baker_balance)))
+    baker_fee_reward := int(float64(fee_percent * rewards / 100) / (float64(staking_balance) / float64(total_balance)))
     var delegator_rewards []int
+    var delegator_raw_rewards []int
+    var delegator_shares []float32
     var total_delegator_rewards int
-    for _, balance := range balances[1:] {
-	reward := balance * (100 - fee_percent) * rewards / ( total_balance * 100 )
+    for _, balance := range balances {
+
+	reward := int(math.Floor(float64(balance) / (float64(staking_balance) / float64(rewards))))
+        delegator_raw_rewards = append(delegator_raw_rewards, reward)
+
+	reward = reward * ( 100 - fee_percent ) / 100
         delegator_rewards = append(delegator_rewards, reward)
+
+	delegator_shares = append(delegator_shares, float32(balance * 100) / float32(staking_balance))
 	total_delegator_rewards += reward
     }
-    baker_loose_reward := rewards - total_delegator_rewards - baker_self_reward - baker_fee_reward
-    baker_total_reward := baker_self_reward + baker_fee_reward + baker_loose_reward
-    if baker_total_reward + total_delegator_rewards != rewards {
-        fmt.Println("should not happen: rewards mismatch")
-    }
+    baker_total_reward := rewards - total_delegator_rewards
 
     baker_rewards := BakerRewardType{baker_self_reward,
                                    baker_fee_reward,
-				   baker_loose_reward,
 				   baker_total_reward}
 
-    return RewardType{baker_rewards, delegators, delegator_rewards, staking_balance}
+    return RewardType{cycle, baker_rewards, delegators, delegator_raw_rewards, delegator_rewards, balances, delegator_shares, staking_balance, rewards}
 }
 
 func StolenBlocks(cycle_length int, cycle int, delegate string) []StolenBlockType {
@@ -193,8 +189,4 @@ func StolenBlocks(cycle_length int, cycle int, delegate string) []StolenBlockTyp
 	}
     }
     return stolen_blocks
-}
-
-func main() {
-    tezos.Initialize()
 }

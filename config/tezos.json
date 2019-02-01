@@ -1,6 +1,6 @@
 {
     "root": "/tezos",
-    "endpoint": "mainnet-node.tzscan.io:8732",
+    "endpoint": "localhost:8732",
     "protocol": "http",
     "URLs": [
         {
