@@ -3,11 +3,14 @@ package main
 import (
     "fmt"
     "../../../model/tezos"
-//    "encoding/json"
     "strconv"
+    "os"
+    "os/exec"
+    "bufio"
 )
 
 type ConfigType struct {
+    TezosClientPath   string
     Baker             string
     CycleLength       int
     SnapshotInterval  int
@@ -109,18 +112,16 @@ func GetActuals(config ConfigType) []RewardType {
 }
 
 var Config ConfigType = ConfigType{
-    "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH",
-    4096,
-    256,
-    "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH",
-    "infstones",
-    10,
-    64}
+    "/home/ubuntu/tezos/tezos-client", // path to tezos-client
+    "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // baker account
+    4096, // cycle length, const
+    256,  // snapshot interval, const
+    "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
+    "infstones", // delegate name
+    10, // fee percent, 10% by default
+    64} // starting cycle
 
-
-func main() {
-    tezos.Initialize()
-    rewards := GetActuals(Config)
+func PrintRewards(rewards []RewardType) {
     for _, reward := range rewards {
         fmt.Printf("Cycle: %d\n", reward.Cycle)
         fmt.Printf("Baker Self Reward: %d\n", reward.BakerRewards.SelfReward)
@@ -136,4 +137,31 @@ func main() {
         fmt.Printf("Staking Balance: %d\n", reward.StakingBalance)
         fmt.Printf("Total Reward: %d\n", reward.TotalReward)
     }
+}
+
+func Payout(rewards []RewardType) {
+    for _, reward := range rewards {
+        reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("Payout cycle %d? [y/n]:", reward.Cycle)
+        text, _ := reader.ReadString('\n')
+	fmt.Println(text)
+        if text != "y" {
+	    continue
+	}
+        for i, _ := range reward.Delegators {
+		output, err := exec.Command(Config.TezosClientPath,
+		                   "transfer", strconv.Itoa(reward.DelegatorRewards[i]),
+				   "from", Config.DelegateName, "to", reward.Delegators[i]).CombinedOutput()
+                if err != nil {
+                    os.Stderr.WriteString(err.Error())
+		}
+		fmt.Println(string(output))
+        }
+    }
+}
+
+func main() {
+    tezos.Initialize()
+    rewards := GetActuals(Config)
+    Payout(rewards)
 }
