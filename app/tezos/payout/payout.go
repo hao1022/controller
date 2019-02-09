@@ -5,7 +5,9 @@ import (
     "../../../model/tezos"
     "strconv"
     "os"
+    "io"
     "os/exec"
+    "strings"
     "bufio"
 )
 
@@ -140,22 +142,47 @@ func PrintRewards(rewards []RewardType) {
 }
 
 func Payout(rewards []RewardType) {
+    reader := bufio.NewReader(os.Stdin)
+    fmt.Printf("Password:")
+    password, _ := reader.ReadString('\n')
+
     for _, reward := range rewards {
-        reader := bufio.NewReader(os.Stdin)
 	fmt.Printf("Payout cycle %d? [y/n]:", reward.Cycle)
         text, _ := reader.ReadString('\n')
+	text = strings.Trim(text, "\n")
 	fmt.Println(text)
         if text != "y" {
 	    continue
 	}
         for i, _ := range reward.Delegators {
-		output, err := exec.Command(Config.TezosClientPath,
-		                   "transfer", strconv.Itoa(reward.DelegatorRewards[i]),
-				   "from", Config.DelegateName, "to", reward.Delegators[i]).CombinedOutput()
-                if err != nil {
-                    os.Stderr.WriteString(err.Error())
+
+		// format command
+		if reward.DelegatorRewards[i] == 0 {
+		    continue
 		}
-		fmt.Println(string(output))
+		amount := float64(reward.DelegatorRewards[i]) / 1000000.0
+		amount_str := strconv.FormatFloat(amount, 'g', 6, 64)
+		cmd := fmt.Sprintf("%s transfer %s from %s to %s", Config.TezosClientPath,
+		                   amount_str, Config.Delegate, reward.Delegators[i])
+		// print out command
+                fmt.Println(cmd)
+
+		// execute command
+		process := exec.Command(Config.TezosClientPath,
+		                   "transfer", amount_str,
+				   "from", Config.Delegate, "to", reward.Delegators[i])
+                stdin, err := process.StdinPipe()
+		if err != nil {
+                    fmt.Println(err)
+                }
+                defer stdin.Close()
+		process.Stdout = os.Stdout
+		process.Stderr = os.Stderr
+		if err = process.Start(); err != nil {
+                    fmt.Println("An error occured: ", err)
+		}
+                io.WriteString(stdin, password)
+		process.Wait()
         }
     }
 }
