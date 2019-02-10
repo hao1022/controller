@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage() {
-    echo "Usage: ./payout.out [reset|start]"
+    echo "Usage: ./payout.out [reset|start|show]"
 }
 
 if [ $# -ne 1 ]; then
@@ -17,6 +17,9 @@ case "$1" in
     "start")
         cd $HOME/monitor-server/app/tezos
 	go run payout/*.go
+	;;
+    "show")
+        cat $HOME/tezos/.payout_records
 	;;
     *)
         usage

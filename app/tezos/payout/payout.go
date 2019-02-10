@@ -33,7 +33,7 @@ var Config ConfigType = ConfigType{
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
     10, // fee percent, 10% by default
-    63, // starting cycle
+    64, // starting cycle
     "/home/ubuntu/tezos/.payout_records", // payout record file
     ""} // password, to be input
 
@@ -117,7 +117,7 @@ func GetActualsForCycle(config ConfigType, cycle int) RewardType {
 }
 
 func GetPaidCycle() int {
-    paid_cycle := Config.StartingCycle
+    paid_cycle := Config.StartingCycle - 1
     file, err := os.Open(Config.PayoutRecords)
     if err != nil {
         fmt.Println("An error occured: ", err)
