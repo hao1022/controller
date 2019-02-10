@@ -214,7 +214,7 @@ func Payout(rewards []RewardType) {
 		process := exec.Command(Config.TezosClientPath, "-A",
 		                   Config.Endpoint,
 		                   "transfer", amount_str,
-				   "from", Config.Delegate, "to", reward.Delegators[i])
+				   "from", Config.DelegateName, "to", reward.Delegators[i])
                 stdin, err := process.StdinPipe()
 		if err != nil {
                     fmt.Println(err)
