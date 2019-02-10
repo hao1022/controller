@@ -209,6 +209,7 @@ func Payout(rewards []RewardType) {
 		                   amount_str, Config.DelegateName, reward.Delegators[i])
 		// print out command
                 fmt.Println(cmd)
+		fmt.Println(Config.Password)
 
 		// execute command
 		process := exec.Command(Config.TezosClientPath, "-A",
