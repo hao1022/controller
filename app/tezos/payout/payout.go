@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "time"
+    "bytes"
     "../../../model/tezos"
     "strconv"
     "os"
@@ -215,7 +216,9 @@ func Payout(rewards []RewardType) {
 		                   Config.Endpoint,
 		                   "transfer", amount_str,
 				   "from", Config.DelegateName, "to", reward.Delegators[i])
-		process.Stdin = strings.NewReader(Config.Password)
+                var p bytes.Buffer
+                p.Write([]byte(Config.Password))
+		process.Stdin = &p
 		process.Stdout = os.Stdout
 		process.Stderr = os.Stderr
 		process.Run()
