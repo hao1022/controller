@@ -6,7 +6,6 @@ import (
     "../../../model/tezos"
     "strconv"
     "os"
-    "io"
     "os/exec"
     "strings"
     "bufio"
@@ -219,9 +218,7 @@ func Payout(rewards []RewardType) {
 		process.Stdin = strings.NewReader(Config.Password)
 		process.Stdout = os.Stdout
 		process.Stderr = os.Stderr
-		if err = process.Start(); err != nil {
-                    fmt.Println("An error occured: ", err)
-		}
+		process.Run()
 		process.Wait()
         }
         WriteOutPayout(reward)
