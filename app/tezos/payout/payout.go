@@ -206,7 +206,7 @@ func Payout(rewards []RewardType) {
 		cmd := fmt.Sprintf("%s -A %s transfer %s from %s to %s",
 		                   Config.TezosClientPath,
 				   Config.Endpoint,
-		                   amount_str, Config.Delegate, reward.Delegators[i])
+		                   amount_str, Config.DelegateName, reward.Delegators[i])
 		// print out command
                 fmt.Println(cmd)
 
