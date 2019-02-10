@@ -216,17 +216,12 @@ func Payout(rewards []RewardType) {
 		                   Config.Endpoint,
 		                   "transfer", amount_str,
 				   "from", Config.DelegateName, "to", reward.Delegators[i])
-                stdin, err := process.StdinPipe()
-		if err != nil {
-                    fmt.Println(err)
-                }
-                defer stdin.Close()
+		process.Stdin = strings.NewReader(Config.Password)
 		process.Stdout = os.Stdout
 		process.Stderr = os.Stderr
 		if err = process.Start(); err != nil {
                     fmt.Println("An error occured: ", err)
 		}
-                io.WriteString(stdin, Config.Password)
 		process.Wait()
         }
         WriteOutPayout(reward)
