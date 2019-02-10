@@ -21,6 +21,7 @@ type ConfigType struct {
     DelegateName      string
     FeePercent        int
     StartingCycle     int
+    Endpoint          string
     PayoutRecords     string
     Password          string
 }
@@ -34,6 +35,7 @@ var Config ConfigType = ConfigType{
     "infstones", // delegate name
     10, // fee percent, 10% by default
     64, // starting cycle
+    "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
     ""} // password, to be input
 
@@ -201,13 +203,16 @@ func Payout(rewards []RewardType) {
 		}
 		amount := float64(reward.DelegatorRewards[i]) / 1000000.0
 		amount_str := strconv.FormatFloat(amount, 'g', 6, 64)
-		cmd := fmt.Sprintf("%s transfer %s from %s to %s", Config.TezosClientPath,
+		cmd := fmt.Sprintf("%s -A %s transfer %s from %s to %s",
+		                   Config.TezosClientPath,
+				   Config.Endpoint,
 		                   amount_str, Config.Delegate, reward.Delegators[i])
 		// print out command
                 fmt.Println(cmd)
 
 		// execute command
-		process := exec.Command(Config.TezosClientPath,
+		process := exec.Command(Config.TezosClientPath, "-A",
+		                   Config.Endpoint,
 		                   "transfer", amount_str,
 				   "from", Config.Delegate, "to", reward.Delegators[i])
                 stdin, err := process.StdinPipe()

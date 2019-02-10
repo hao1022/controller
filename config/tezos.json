@@ -1,6 +1,6 @@
 {
     "root": "/tezos",
-    "endpoint": "localhost:8732",
+    "endpoint": "54.188.118.102:8732",
     "protocol": "http",
     "URLs": [
         {
