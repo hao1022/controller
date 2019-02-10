@@ -15,7 +15,7 @@ case "$1" in
 	touch $HOME/tezos/.payout_records
 	;;
     "start")
-        cd $HOME/monitor-server/app/tezos
+        cd app/tezos
 	go run payout/*.go
 	;;
     "show")
