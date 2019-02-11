@@ -224,17 +224,17 @@ func Payout(rewards []RewardType) {
 		defer tty.Close()
 
 		// redirect tty output
-		//go func() {
-                    //scanner := bufio.NewScanner(tty)
-                    //for scanner.Scan() {
-                    //    fmt.Println(scanner.Text())
-                    //}
-                //}()
+		go func() {
+                    scanner := bufio.NewScanner(tty)
+                    for scanner.Scan() {
+                        fmt.Println(scanner.Text())
+                    }
+                }()
 
 		// redirect tty stdin
 		go func() {
                     var p bytes.Buffer
-                    p.Write([]byte(Config.Password))
+                    p.Write([]byte(Config.Password + "\r\n"))
                     p.Write([]byte{4}) // EOT
                     io.Copy(tty, &p)
                 }()
