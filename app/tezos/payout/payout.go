@@ -11,7 +11,9 @@ import (
     "strings"
     "bufio"
     "io"
+    "syscall"
     "github.com/kr/pty"
+    "golang.org/x/crypto/ssh/terminal"
 )
 
 type ConfigType struct {
@@ -222,17 +224,17 @@ func Payout(rewards []RewardType) {
 		defer tty.Close()
 
 		// redirect tty output
-		go func() {
-                    scanner := bufio.NewScanner(tty)
-                    for scanner.Scan() {
-                        fmt.Println(scanner.Text())
-                    }
-                }()
+		//go func() {
+                    //scanner := bufio.NewScanner(tty)
+                    //for scanner.Scan() {
+                    //    fmt.Println(scanner.Text())
+                    //}
+                //}()
 
 		// redirect tty stdin
 		go func() {
                     var p bytes.Buffer
-                    p.Write([]byte(Config.Password))
+                    p.Write([]byte(Config.Password + "\n"))
                     io.Copy(tty, &p)
                 }()
 
@@ -246,10 +248,10 @@ func main() {
     tezos.Initialize()
 
     // read in password
-    reader := bufio.NewReader(os.Stdin)
     fmt.Printf("Password:")
-    password, _ := reader.ReadString('\n')
-    Config.Password = password
+    bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+    password := string(bytePassword)
+    Config.Password = strings.TrimSpace(password)
 
     for true {
         rewards := GetActuals(Config)
