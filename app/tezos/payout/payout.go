@@ -10,6 +10,8 @@ import (
     "os/exec"
     "strings"
     "bufio"
+    "io"
+    "github.com/kr/pty"
 )
 
 type ConfigType struct {
@@ -209,19 +211,31 @@ func Payout(rewards []RewardType) {
 		                   amount_str, Config.DelegateName, reward.Delegators[i])
 		// print out command
                 fmt.Println(cmd)
-		fmt.Println(Config.Password)
+		//fmt.Println(Config.Password)
 
 		// execute command
 		process := exec.Command(Config.TezosClientPath, "-A",
 		                   Config.Endpoint,
 		                   "transfer", amount_str,
 				   "from", Config.DelegateName, "to", reward.Delegators[i])
-                var p bytes.Buffer
-                p.Write([]byte(Config.Password))
-		process.Stdin = &p
-		process.Stdout = os.Stdout
-		process.Stderr = os.Stderr
-		process.Run()
+                tty, _ := pty.Start(process)
+		defer tty.Close()
+
+		// redirect tty output
+		go func() {
+                    scanner := bufio.NewScanner(tty)
+                    for scanner.Scan() {
+                        fmt.Println(scanner.Text())
+                    }
+                }()
+
+		// redirect tty stdin
+		go func() {
+                    var p bytes.Buffer
+                    p.Write([]byte(Config.Password))
+                    io.Copy(tty, &p)
+                }()
+
 		process.Wait()
         }
         WriteOutPayout(reward)
