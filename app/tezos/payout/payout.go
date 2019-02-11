@@ -234,7 +234,8 @@ func Payout(rewards []RewardType) {
 		// redirect tty stdin
 		go func() {
                     var p bytes.Buffer
-                    p.Write([]byte(Config.Password + "\n"))
+                    p.Write([]byte(Config.Password))
+                    p.Write([]byte{4}) // EOT
                     io.Copy(tty, &p)
                 }()
 

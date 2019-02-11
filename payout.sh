@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 function usage() {
     echo "Usage: ./payout.out [reset|start|show]"
 }
@@ -15,7 +16,7 @@ case "$1" in
 	touch $HOME/tezos/.payout_records
 	;;
     "start")
-        cd app/tezos
+        cd "$(dirname "${BASH_SOURCE[0]}")/app/tezos"
 	go run payout/*.go
 	;;
     "show")
