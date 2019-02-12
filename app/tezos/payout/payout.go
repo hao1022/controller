@@ -221,6 +221,8 @@ func Payout(rewards []RewardType) {
 		                   "transfer", amount_str,
 				   "from", Config.DelegateName, "to", reward.Delegators[i])
                 tty, _ := pty.Start(process)
+                state, _ := terminal.MakeRaw(int(tty.Fd()))
+                defer func() { _ = terminal.Restore(int(tty.Fd()), state) }()
 		defer tty.Close()
 
 		// redirect tty output
@@ -234,8 +236,7 @@ func Payout(rewards []RewardType) {
 		// redirect tty stdin
 		go func() {
                     var p bytes.Buffer
-                    p.Write([]byte(Config.Password + "\r\n"))
-                    p.Write([]byte{4}) // EOT
+                    p.Write([]byte(Config.Password + "\n"))
                     io.Copy(tty, &p)
                 }()
 
