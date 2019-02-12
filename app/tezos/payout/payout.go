@@ -3,16 +3,16 @@ package main
 import (
     "fmt"
     "time"
-    "bytes"
+    //"bytes"
     "../../../model/tezos"
     "strconv"
     "os"
-    "os/exec"
+    //"os/exec"
     "strings"
     "bufio"
-    "io"
+    //"io"
     "syscall"
-    "github.com/kr/pty"
+    //"github.com/kr/pty"
     "golang.org/x/crypto/ssh/terminal"
 )
 
@@ -199,6 +199,11 @@ func WriteOutPayout(reward RewardType) {
 
 func Payout(rewards []RewardType) {
     for _, reward := range rewards {
+	payout_cmds, _ := os.OpenFile("/home/ubuntu/payout" + strconv.Itoa(reward.Cycle) + ".sh",
+	                          os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0655)
+        defer payout_cmds.Close()
+
+        payout_cmds.WriteString("#!/bin/bash\n\n")
         for i, _ := range reward.Delegators {
 
 		// format command
@@ -213,8 +218,10 @@ func Payout(rewards []RewardType) {
 		                   amount_str, Config.DelegateName, reward.Delegators[i])
 		// print out command
                 fmt.Println(cmd)
+		payout_cmds.WriteString(cmd + "\n")
 		//fmt.Println(Config.Password)
 
+		/*
 		// execute command
 		process := exec.Command(Config.TezosClientPath, "-A",
 		                   Config.Endpoint,
@@ -241,6 +248,7 @@ func Payout(rewards []RewardType) {
                 }()
 
 		process.Wait()
+		*/
         }
         WriteOutPayout(reward)
     }
