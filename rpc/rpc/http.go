@@ -95,7 +95,7 @@ func loadConfig(key string, fileName string) {
 
     byteValue, _ := ioutil.ReadAll(jsonFile)
 
-    json.Unmarshal([]byte(byteValue), config)
+    json.Unmarshal([]byte(byteValue), &config)
 
     config.Indices = make(map[string] *Forwarding)
     for i, forwarding := range config.Forwardings {
