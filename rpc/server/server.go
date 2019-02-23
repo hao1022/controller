@@ -40,34 +40,34 @@ func makeContext(c *gin.Context, params []string, queries []string, ctxt map[str
     }
 }
 
-func RegisterRoutes(router *gin.Engine) {
-    for _, config := range rpc.Config {
-        for _, route := range config.URLs {
-	    url := config.Root + route.URL
+func RegisterJobs(dispatcher *gin.Engine) {
+    for _, config := range rpc.Configurations {
+        for _, forward := range config.Forwardings {
+	    path := config.Root + forward.Source
 
 	    // GET method
-	    if route.Method == "" || route.Method == "get" {
-		config_, route_ := config, route
-	        router.GET(url, func(c *gin.Context) {
+	    if forward.Method == "" || forward.Method == "get" {
+		config_, forward_ := config, forward
+	        dispatcher.GET(path, func(c *gin.Context) {
                     context := make(map[string]string)
-		    makeContext(c, route_.Params, route_.Query, context)
-		    c.Writer.Write(rpc.Get(config_, route_, context))
+		    makeContext(c, forward_.Params, forward_.Query, context)
+		    c.Writer.Write(rpc.Get(config_, forward_, context))
 		})
 	    }
 
 	    // POST method
-	    if route.Method == "post" {
-		config_, route_ := config, route
-	        router.POST(url, func(c *gin.Context) {
+	    if forward.Method == "post" {
+		config_, forward_ := config, forward
+	        dispatcher.POST(path, func(c *gin.Context) {
                     context := make(map[string]string)
-		    makeContext(c, route_.Params, route_.Query, context)
-		    c.Writer.Write(rpc.Post(config_, route_, context))
+		    makeContext(c, forward_.Params, forward_.Query, context)
+		    c.Writer.Write(rpc.Post(config_, forward_, context))
 		})
 	    }
 
 	    // RPC calls
-	    if route.Method == "rpc" {
-	        router.POST(url, func(c *gin.Context) {
+	    if forward.Method == "rpc" {
+	        dispatcher.POST(path, func(c *gin.Context) {
 		    GetServer().ServeHTTP(c.Writer, c.Request)
 		})
             }
@@ -76,8 +76,8 @@ func RegisterRoutes(router *gin.Engine) {
 }
 
 func main () {
-    router := gin.Default()
+    dispatcher := gin.Default()
     rpc.Initialize()
-    RegisterRoutes(router)
-    router.Run()
+    RegisterJobs(dispatcher)
+    dispatcher.Run()
 }

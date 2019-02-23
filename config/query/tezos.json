@@ -1,0 +1,102 @@
+{
+    "root": "/tezos",
+    "host": "54.188.118.102:8732",
+    "protocol": "http",
+    "forwardings": [
+        {
+	    "source": "/staking_balance/:head/:account",
+            "target": "/chains/main/blocks/$head/context/delegates/$account/staking_balance",
+	    "params": ["head", "account"]
+	},
+	{
+	    "source": "/current_level/:head",
+	    "target": "/chains/main/blocks/$head/helpers/current_level",
+	    "params": ["head"]
+	},
+	{
+	    "source": "/blockheader/:head",
+	    "target": "/chains/main/blocks/$head/header",
+	    "params": ["head"]
+	},
+	{
+	    "source": "/metadata/:head",
+	    "target": "/chains/main/blocks/$head/metadata",
+	    "params": ["head"]
+	},
+	{
+	    "source": "/cycle_info/:head/:cycle",
+	    "target": "/chains/main/blocks/$head/context/raw/json/cycle/$cycle",
+	    "params": ["head", "cycle"]
+	},
+	{
+	    "source": "/endorsing_rights/:head/:account/:cycle",
+	    "target": "/chains/main/blocks/$head/helpers/endorsing_rights?cycle=$cycle&delegate=$account",
+	    "query": ["head", "cycle", "account"]
+	},
+	{
+	    "source": "/baking_rights/:head/:account/:cycle",
+	    "target": "/chains/main/blocks/$head/helpers/baking_rights?cycle=$cycle&delegate=$account",
+	    "query": ["head", "cycle", "delegate"]
+	},
+	{
+	    "source": "/operations/:head",
+	    "target": "/chains/main/blocks/$head/operations",
+	    "params": ["head"]
+	},
+	{
+	    "source": "/delegated_contracts/:head/:account",
+	    "target": "/chains/main/blocks/$head/context/delegates/$account/delegated_contracts",
+	    "params": ["head", "account"]
+	},
+	{
+	    "source": "/delegated_balance/:head/:account",
+	    "target": "/chains/main/blocks/$head/context/delegates/$account/delegated_balance",
+	    "params": ["head", "account"]
+	},
+        {
+	    "source": "/delegate_balance/:head/:account",
+            "target": "/chains/main/blocks/$head/context/delegates/$account/balance",
+	    "params": ["head", "account"]
+	},
+        {
+	    "source": "/frozen_balance/:head/:account",
+            "target": "/chains/main/blocks/$head/context/delegates/$account/frozen_balance",
+	    "params": ["head", "account"]
+	},
+        {
+	    "source": "/frozen_balance_by_cycle/:head/:account",
+            "target": "/chains/main/blocks/$head/context/delegates/$account/frozen_balance_by_cycle",
+	    "params": ["head", "account"]
+	},
+        {
+	    "source": "/balance/:head/:account",
+            "target": "/chains/main/blocks/$head/context/contracts/$account/balance",
+	    "params": ["head", "account"]
+	},
+        {
+	    "source": "/counter/:contract",
+            "target": "/chains/main/blocks/head/context/contracts/$contract/counter",
+	    "params": ["contract"]
+	},
+        {
+	    "source": "/manager_key/:contract",
+            "target": "/chains/main/blocks/head/context/contracts/$contract/manager_key",
+	    "params": ["contract"]
+	},
+        {
+	    "source": "/block/:hash",
+            "target": "/chains/main/blocks/$hash",
+	    "params": ["hash"]
+	},
+        {
+	    "source": "/blocks",
+            "target": "/chains/main/blocks",
+	    "params": []
+	},
+        {
+	    "source": "/protocols",
+            "target": "/chains/main/protocols",
+	    "params": []
+	}
+    ]
+}

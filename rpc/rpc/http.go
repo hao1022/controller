@@ -10,9 +10,9 @@ import (
     "encoding/json"
 )
 
-type URLType struct {
-    URL string `json:"url"`
+type Forwarding struct {
     Source string `json:"source"`
+    Target string `json:"target"`
     Method string `json:"method"`
     Data string `json:"data"`
     ContentType string `json:"content_type"`
@@ -20,17 +20,53 @@ type URLType struct {
     Query []string `json:"query"`
 }
 
-type ConfigType struct {
+type Config struct {
     Root string `json:"root"`
-    Endpoint string `json:"endpoint"`
+    Host string `json:"host"`
     Protocol string `json:"protocol"`
-    URLs []URLType `json:"URLs"`
-    Indices map[string]*URLType
+    Forwardings []Forwarding `json:"forwardings"`
+    Indices map[string]*Forwarding
 }
 
-var Config map[string]ConfigType
+var Configurations map[string]Config
 
-func (config *ConfigType) ReadConfigFile(filename string) {
+
+func Get(config Config, forward Forwarding, context map[string]string) []byte {
+    target := forward.Target
+    if context != nil {
+        for param, value := range context {
+            pattern := "$" + param
+            target = strings.Replace(target, pattern, value, -1)
+        }
+    }
+    url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Host, target)
+    fmt.Println(url)
+    resp, _ := http.Get(url)
+    defer resp.Body.Close()
+    body, _ := ioutil.ReadAll(resp.Body)
+    return body
+}
+
+func Post(config Config, forward Forwarding, context map[string]string) []byte {
+    target := forward.Target
+    data_str := forward.Data
+    if context != nil {
+        for param, value := range context {
+            pattern := "$" + param
+	    target = strings.Replace(target, pattern, value, -1)
+	    data_str = strings.Replace(data_str, pattern, value, -1)
+	}
+    }
+    url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Host, target)
+    data := []byte(data_str)
+    resp, _ := http.Post(url, forward.ContentType, bytes.NewBuffer(data))
+    defer resp.Body.Close()
+    body, _ := ioutil.ReadAll(resp.Body)
+    return body
+}
+
+/*
+func (config *Config) readConfigFile(filename string) {
     jsonFile, err := os.Open(filename)
     if err != nil {
         fmt.Println(err)
@@ -42,62 +78,42 @@ func (config *ConfigType) ReadConfigFile(filename string) {
     json.Unmarshal([]byte(byteValue), config)
 
     config.Indices = make(map[string] *URLType)
-    for i, url := range config.URLs {
-        config.Indices[url.URL] = &config.URLs[i]
+    for i, forwarding := range config.Forwardings {
+        config.Indices[forwarding.source] = &config.Forwardings[i]
     }
 }
+*/
 
-func Get(config ConfigType, route URLType, context map[string]string) []byte {
-    source := route.Source
-    if context != nil {
-        for param, value := range context {
-            pattern := "$" + param
-            source = strings.Replace(source, pattern, value, -1)
-        }
+func loadConfig(key string, fileName string) {
+    var config Config
+
+    jsonFile, err := os.Open(fileName)
+    if err != nil {
+        fmt.Println(err)
     }
-    url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Endpoint, source)
-    //fmt.Println(url)
-    resp, _ := http.Get(url)
-    defer resp.Body.Close()
-    body, _ := ioutil.ReadAll(resp.Body)
-    return body
-}
+    defer jsonFile.Close()
 
-func Post(config ConfigType, route URLType, context map[string]string) []byte {
-    source := route.Source
-    data_str := route.Data
-    if context != nil {
-        for param, value := range context {
-            pattern := "$" + param
-	    source = strings.Replace(source, pattern, value, -1)
-	    data_str = strings.Replace(data_str, pattern, value, -1)
-	}
+    byteValue, _ := ioutil.ReadAll(jsonFile)
+
+    json.Unmarshal([]byte(byteValue), config)
+
+    config.Indices = make(map[string] *Forwarding)
+    for i, forwarding := range config.Forwardings {
+        config.Indices[forwarding.Source] = &config.Forwardings[i]
     }
-    url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Endpoint, source)
-    data := []byte(data_str)
-    resp, _ := http.Post(url, route.ContentType, bytes.NewBuffer(data))
-    defer resp.Body.Close()
-    body, _ := ioutil.ReadAll(resp.Body)
-    return body
-}
 
-func RegisterConfig(key string, config_file string) {
-    var config ConfigType
-
-    config.ReadConfigFile(config_file)
-    Config[key] = config
+    Configurations[key] = config
 }
 
 func Initialize() {
-    config_dir := "../../config/"
+    configDir := "../../config/query/"
     var keys = []string{
-        "rpc",   // RPC route
         "tezos",
 	"eos",
 	"gxchain"}
 
-    Config = make(map[string]ConfigType)
+    Configurations = make(map[string]Config)
     for _, key := range keys {
-        RegisterConfig(key, config_dir + key + ".json")
+        loadConfig(key, configDir + key + ".json")
     }
 }
