@@ -1,4 +1,4 @@
-package rpc
+package controller
 
 import (
     "os"
@@ -65,25 +65,6 @@ func Post(config Config, forward Forwarding, context map[string]string) []byte {
     return body
 }
 
-/*
-func (config *Config) readConfigFile(filename string) {
-    jsonFile, err := os.Open(filename)
-    if err != nil {
-        fmt.Println(err)
-    }
-    defer jsonFile.Close()
-
-    byteValue, _ := ioutil.ReadAll(jsonFile)
-
-    json.Unmarshal([]byte(byteValue), config)
-
-    config.Indices = make(map[string] *URLType)
-    for i, forwarding := range config.Forwardings {
-        config.Indices[forwarding.source] = &config.Forwardings[i]
-    }
-}
-*/
-
 func loadConfig(key string, fileName string) {
     var config Config
 
@@ -105,8 +86,7 @@ func loadConfig(key string, fileName string) {
     Configurations[key] = config
 }
 
-func Initialize() {
-    configDir := "../../config/query/"
+func Initialize(configDir string) {
     var keys = []string{
         "tezos",
 	"eos",

@@ -1,31 +1,9 @@
 package main
 
 import (
-    "../rpc"
+    "../controller"
     "github.com/gin-gonic/gin"
-    gorilla_rpc "github.com/gorilla/rpc"
-    "github.com/gorilla/rpc/json"
 )
-
-var Server *gorilla_rpc.Server
-
-func RegisterService(receiver interface{}, name string) error {
-    return Server.RegisterService(receiver, name)
-}
-
-func GetServer() *gorilla_rpc.Server {
-    if Server != nil {
-        return Server
-    }
-
-    Server := gorilla_rpc.NewServer()
-    Server.RegisterCodec(json.NewCodec(), "application/json")
-    Server.RegisterCodec(json.NewCodec(), "application/json;charset=UTF-8")
-
-    handler := new(rpc.CommonService)
-    Server.RegisterService(handler, "")
-    return Server
-}
 
 func makeContext(c *gin.Context, params []string, queries []string, ctxt map[string]string) {
     if params != nil {
@@ -41,7 +19,7 @@ func makeContext(c *gin.Context, params []string, queries []string, ctxt map[str
 }
 
 func RegisterJobs(dispatcher *gin.Engine) {
-    for _, config := range rpc.Configurations {
+    for _, config := range controller.Configurations {
         for _, forward := range config.Forwardings {
 	    path := config.Root + forward.Source
 
@@ -51,7 +29,7 @@ func RegisterJobs(dispatcher *gin.Engine) {
 	        dispatcher.GET(path, func(c *gin.Context) {
                     context := make(map[string]string)
 		    makeContext(c, forward_.Params, forward_.Query, context)
-		    c.Writer.Write(rpc.Get(config_, forward_, context))
+		    c.Writer.Write(controller.Get(config_, forward_, context))
 		})
 	    }
 
@@ -61,14 +39,17 @@ func RegisterJobs(dispatcher *gin.Engine) {
 	        dispatcher.POST(path, func(c *gin.Context) {
                     context := make(map[string]string)
 		    makeContext(c, forward_.Params, forward_.Query, context)
-		    c.Writer.Write(rpc.Post(config_, forward_, context))
+		    c.Writer.Write(controller.Post(config_, forward_, context))
 		})
 	    }
 
-	    // RPC calls
+	    // Action calls such as backup and upgrade, not test yet
 	    if forward.Method == "rpc" {
+		config_, forward_ := config, forward
 	        dispatcher.POST(path, func(c *gin.Context) {
-		    GetServer().ServeHTTP(c.Writer, c.Request)
+                    context := make(map[string]string)
+		    makeContext(c, forward_.Params, forward_.Query, context)
+		    c.Writer.Write(controller.Post(config_, forward_, context))
 		})
             }
         }
@@ -77,7 +58,7 @@ func RegisterJobs(dispatcher *gin.Engine) {
 
 func main () {
     dispatcher := gin.Default()
-    rpc.Initialize()
+    controller.Initialize("../../config/query/")
     RegisterJobs(dispatcher)
     dispatcher.Run()
 }

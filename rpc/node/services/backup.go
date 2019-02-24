@@ -1,4 +1,4 @@
-package model
+package services
 
 import (
     "fmt"
@@ -26,7 +26,7 @@ func backup(chain string) error {
     return err
 }
 
-func Backup(chain string) error {
+func BackupData(chain string) error {
     var err error
     switch chain {
         case "tron":
