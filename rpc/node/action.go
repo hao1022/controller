@@ -9,7 +9,7 @@ import (
     "./services"
 )
 
-type CommonService struct{}
+type Action struct{}
 
 /*
  * Backup RPC
@@ -22,7 +22,7 @@ type BackupReply struct {
     Message string
 }
 
-func (h *CommonService) Backup(r *http.Request, args *BackupArgs, reply *BackupReply) error {
+func (h *Action) Backup(r *http.Request, args *BackupArgs, reply *BackupReply) error {
 	err := services.BackupData(args.Chain)
 	if err != nil {
 		reply.Message = "Error"
