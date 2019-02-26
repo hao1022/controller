@@ -58,7 +58,7 @@ func RegisterJobs(dispatcher *gin.Engine) {
 
 func main () {
     dispatcher := gin.Default()
-    controller.Initialize("../../config/query/")
+    controller.Initialize("../../config/forward/")
     RegisterJobs(dispatcher)
     dispatcher.Run()
 }
