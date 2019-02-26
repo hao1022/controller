@@ -58,23 +58,27 @@ type CurrentLevelType struct{
 
 type OperationResultType struct{
     Status      string  `json:"status"`
-    ConsumedGas string  `json:"consumed_gas"`
 }
 
 type OperationMetadataType struct{
-    Result OperationResultType  `json:"operation_result"`
+    BalanceUpdates []BalanceUpdateType  `json:"balance_update"`
+    Result         OperationResultType  `json:"operation_result"`
 }
 
 type OperationContentType struct{
     Kind        string   `json:"kind"`
     Source      string   `json:"source"`
-    Fee         string   `json:"fee"`
-    Level       int      `json:"level"`
-    Contract    string   `json:"contract"`
-    Change      string   `json:"change"`
-    Metadata    OperationMetadataType `json:"metadata"`
+    Fee         string   `json:"fee"`     // mutez
+    Counter     string   `json:"counter"`
+    GasLimit    string   `json:"gas_limit"`
+    StorageLimit string  `json:"storage_limit"`
     Destination string   `json:"destination"`
-    Amount      string   `json:"amount"`
+    Amount      string   `json:"amount"`  // mutez
+}
+
+type OperationContentAndResultType struct{
+    OperationContentType
+    Metadata    OperationMetadataType `json:"metadata"`
 }
 
 type OperationType struct{
@@ -83,6 +87,11 @@ type OperationType struct{
     Branch   string   `json:"branch"`
     Contents []OperationContentType  `json:"contents"`
 }
+
+//type OperationResultType struct{
+//    Contents    []OperationContentType  `json:"contents"`
+//    Signature   string                  `json:"signature"`
+//}
 
 type FrozenBalanceByCycleType struct{
     Cycle   int      `json:"cycle"`

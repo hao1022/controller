@@ -143,3 +143,24 @@ func Operations(hash string) OperationType {
     json.Unmarshal(body, &operations)
     return operations
 }
+
+func Counter(contract string) string {
+    var counter string
+    body := rpc.Get(rpc.Config["tezos"],
+                    *rpc.Config["tezos"].Indices["/counter/:contract"],
+		    map[string]string{"contract": contract})
+    json.Unmarshal(body, &counter)
+    return counter
+}
+
+func RunOperation(data string) OperationContentAndResultType {
+    var result OperationContentAndResultType
+    config := rpc.Config["tezos"]
+    url := *config.Indices["/run_operation"]
+    if data != "" {
+        url.Data = data
+    }
+    body := rpc.Post(config, url, map[string]string{})
+    json.Unmarshal(body, &result)
+    return result
+}

@@ -6,6 +6,7 @@ import (
     "../../../model/tezos"
     "strconv"
     "os"
+<<<<<<< HEAD
     "path/filepath"
     "strings"
     "bufio"
@@ -203,13 +204,8 @@ func Payout(rewards []RewardType) {
 		}
 		amount := float64(reward.DelegatorRewards[i]) / 1000000.0
 		amount_str := strconv.FormatFloat(amount, 'g', 6, 64)
-		cmd := fmt.Sprintf("%s -A %s transfer %s from %s to %s",
-		                   Config.TezosClientPath,
-				   Config.Endpoint,
-		                   amount_str, Config.DelegateName, reward.Delegators[i])
-		// print out command
-                fmt.Println(cmd)
-		payout_cmds.WriteString(cmd + "\n")
+
+                Transfer(Config, amount_str, Config.DelegateName, reward.Delegators[i])
         }
         WriteOutPayout(reward)
     }
@@ -219,14 +215,15 @@ func main() {
     tezos.Initialize()
 
     // read in password
-    fmt.Printf("Password:")
-    bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-    password := string(bytePassword)
-    Config.Password = strings.TrimSpace(password)
+    //fmt.Printf("Password:")
+    //bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+    //password := string(bytePassword)
+    //Config.Password = strings.TrimSpace(password)
 
     for true {
         rewards := GetActuals(Config)
         Payout(rewards)
         time.Sleep(10 * time.Second)
     }
+    //fmt.Printf("%d", tezos.Counter("tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH"))
 }
