@@ -1,10 +1,13 @@
 {
-    "root": "",
     "protocol": "http",
-    "URLs": [
+    "forwardings": [
         {
 	    "method": "rpc",
-	    "url": "/rpc"
+	    "source": "/rpc",
+	    "target": "/rpc",
+	    "host": "$host:9090",
+	    "content_type": "application/json",
+	    "query": ["host"]
 	}
     ]
 }

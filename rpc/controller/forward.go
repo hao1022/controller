@@ -13,6 +13,7 @@ import (
 type Forwarding struct {
     Source string `json:"source"`
     Target string `json:"target"`
+    Host string `json:"host"`
     Method string `json:"method"`
     Data string `json:"data"`
     ContentType string `json:"content_type"`
@@ -65,6 +66,25 @@ func Post(config Config, forward Forwarding, context map[string]string) []byte {
     return body
 }
 
+func Rpc(config Config, forward Forwarding, context map[string]string, data []byte) []byte {
+    target := forward.Target
+    host := forward.Host
+    if context != nil {
+        for param, value := range context {
+            pattern := "$" + param
+	    target = strings.Replace(target, pattern, value, -1)
+	    host = strings.Replace(host, pattern, value, -1)
+	}
+    }
+    url := fmt.Sprintf("%s://%s%s", config.Protocol, host, target)
+    fmt.Println(url)
+    fmt.Println(data)
+    resp, _ := http.Post(url, forward.ContentType, bytes.NewBuffer(data))
+    defer resp.Body.Close()
+    body, _ := ioutil.ReadAll(resp.Body)
+    return body
+}
+
 func loadConfig(key string, fileName string) {
     var config Config
 
@@ -90,7 +110,8 @@ func Initialize(configDir string) {
     var keys = []string{
         "tezos",
 	"eos",
-	"gxchain"}
+	"gxchain",
+        "../rpc"}
 
     Configurations = make(map[string]Config)
     for _, key := range keys {

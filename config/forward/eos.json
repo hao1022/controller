@@ -11,6 +11,7 @@
 	    "source": "/get_block_header_state/:block_num_or_id",
             "target": "/v1/chain/get_block_header_state",
 	    "method": "post",
+	    "content_type": "application/json",
 	    "data": "{\"block_num_or_id\":\"$block_num_or_id\"}",
 	    "params": ["block_num_or_id"]
 	}
