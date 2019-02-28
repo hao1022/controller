@@ -7,6 +7,7 @@ import (
     "../../../model/tezos"
     "strconv"
     "os"
+    "path/filepath"
     //"os/exec"
     "strings"
     "bufio"
@@ -37,7 +38,7 @@ var Config ConfigType = ConfigType{
     256,  // snapshot interval, const
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
-    10, // fee percent, 10% by default
+    15, // fee percent, 10% by default
     64, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
@@ -198,8 +199,10 @@ func WriteOutPayout(reward RewardType) {
 }
 
 func Payout(rewards []RewardType) {
+    path := filepath.Join(".", "payout_scripts")
+    os.MkdirAll(path, os.ModePerm)
     for _, reward := range rewards {
-	payout_cmds, _ := os.OpenFile("/home/ubuntu/payout" + strconv.Itoa(reward.Cycle) + ".sh",
+	payout_cmds, _ := os.OpenFile("./payout_scripts/payout" + strconv.Itoa(reward.Cycle) + ".sh",
 	                          os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0655)
         defer payout_cmds.Close()
 
