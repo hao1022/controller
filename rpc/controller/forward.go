@@ -111,7 +111,7 @@ func Initialize(configDir string) {
         "tezos",
 	"eos",
 	"gxchain",
-        "../rpc"}
+        "../action"}
 
     Configurations = make(map[string]Config)
     for _, key := range keys {
