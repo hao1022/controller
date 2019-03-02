@@ -3,17 +3,13 @@ package main
 import (
     "fmt"
     "time"
-    //"bytes"
     "../../../model/tezos"
     "strconv"
     "os"
     "path/filepath"
-    //"os/exec"
     "strings"
     "bufio"
-    //"io"
     "syscall"
-    //"github.com/kr/pty"
     "golang.org/x/crypto/ssh/terminal"
 )
 
@@ -38,7 +34,7 @@ var Config ConfigType = ConfigType{
     256,  // snapshot interval, const
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
-    15, // fee percent, 10% by default
+    15, // fee percent, 15% by default
     64, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
@@ -103,20 +99,13 @@ func GetActualsForCycle(config ConfigType, cycle int) RewardType {
 
     var reward RewardType
 
-    //stolen := StolenBlocks(cycle_length, cycle, baker)
     hash := HashToQuery(cycle + 1, cycle_length)
     frozen_balance_by_cycle := tezos.FrozenBalanceByCycle(hash, baker)
     for _, balance := range frozen_balance_by_cycle {
         if balance.Cycle == cycle {
 	    fee_rewards, _ := strconv.Atoi(balance.Fees)
-	    //extra_rewards := fee_rewards
 	    balance_rewards, _ := strconv.Atoi(balance.Rewards)
 	    realized_rewards := fee_rewards + balance_rewards
-	    //estimated_rewards := EstimatedRewards(cycle_length, cycle, baker)
-	    //paid_rewards := estimated_rewards + extra_rewards
-	    //realized_difference := realized_rewards - paid_rewards
-	    //estimated_difference := estimated_rewards - paid_rewards
-
             reward = CalculateRewardsFor(cycle_length, snapshot_interval, cycle, baker, realized_rewards, fee_percent)
 	}
     }
@@ -208,7 +197,6 @@ func Payout(rewards []RewardType) {
 
         payout_cmds.WriteString("#!/bin/bash\n\n")
         for i, _ := range reward.Delegators {
-
 		// format command
 		if reward.DelegatorRewards[i] == 0 {
 		    continue
@@ -222,36 +210,6 @@ func Payout(rewards []RewardType) {
 		// print out command
                 fmt.Println(cmd)
 		payout_cmds.WriteString(cmd + "\n")
-		//fmt.Println(Config.Password)
-
-		/*
-		// execute command
-		process := exec.Command(Config.TezosClientPath, "-A",
-		                   Config.Endpoint,
-		                   "transfer", amount_str,
-				   "from", Config.DelegateName, "to", reward.Delegators[i])
-                tty, _ := pty.Start(process)
-                state, _ := terminal.MakeRaw(int(tty.Fd()))
-                defer func() { _ = terminal.Restore(int(tty.Fd()), state) }()
-		defer tty.Close()
-
-		// redirect tty output
-		go func() {
-                    scanner := bufio.NewScanner(tty)
-                    for scanner.Scan() {
-                        fmt.Println(scanner.Text())
-                    }
-                }()
-
-		// redirect tty stdin
-		go func() {
-                    var p bytes.Buffer
-                    p.Write([]byte(Config.Password + "\n"))
-                    io.Copy(tty, &p)
-                }()
-
-		process.Wait()
-		*/
         }
         WriteOutPayout(reward)
     }
