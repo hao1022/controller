@@ -97,6 +97,13 @@
 	    "source": "/protocols",
             "target": "/chains/main/protocols",
 	    "params": []
+	},
+	{
+	    "source": "/run_operation",
+	    "method": "post",
+	    "content_type": "application/json",
+	    "target": "/chains/main/blocks/head/helpers/scripts/run_operation",
+	    "params": []
 	}
     ]
 }

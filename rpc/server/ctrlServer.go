@@ -39,7 +39,8 @@ func RegisterJobs(dispatcher *gin.Engine) {
 	        dispatcher.POST(path, func(c *gin.Context) {
                     context := make(map[string]string)
 		    makeContext(c, forward_.Params, forward_.Query, context)
-		    c.Writer.Write(controller.Post(config_, forward_, context))
+		    data, _ := c.GetRawData()
+		    c.Writer.Write(controller.Post(config_, forward_, context, string(data)))
 		})
 	    }
 

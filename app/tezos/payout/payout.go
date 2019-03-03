@@ -6,11 +6,9 @@ import (
     "../../../model/tezos"
     "strconv"
     "os"
-<<<<<<< HEAD
-    "path/filepath"
+    "syscall"
     "strings"
     "bufio"
-    "syscall"
     "golang.org/x/crypto/ssh/terminal"
 )
 
@@ -189,23 +187,20 @@ func WriteOutPayout(reward RewardType) {
 }
 
 func Payout(rewards []RewardType) {
-    path := filepath.Join(".", "payout_scripts")
-    os.MkdirAll(path, os.ModePerm)
+    counter := tezos.Counter(Config.Delegate)
     for _, reward := range rewards {
-	payout_cmds, _ := os.OpenFile("./payout_scripts/payout" + strconv.Itoa(reward.Cycle) + ".sh",
-	                          os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0655)
-        defer payout_cmds.Close()
-
-        payout_cmds.WriteString("#!/bin/bash\n\n")
         for i, _ := range reward.Delegators {
 		// format command
 		if reward.DelegatorRewards[i] == 0 {
 		    continue
 		}
-		amount := float64(reward.DelegatorRewards[i]) / 1000000.0
-		amount_str := strconv.FormatFloat(amount, 'g', 6, 64)
+		amount := reward.DelegatorRewards[i]
+		//amount_str := strconv.FormatFloat(amount, 'g', 6, 64)
+		amount_str := strconv.Itoa(amount)
 
-                Transfer(Config, amount_str, Config.DelegateName, reward.Delegators[i])
+		counter = counter + 1
+
+                Transfer(Config, counter, amount_str, reward.Delegators[i])
         }
         WriteOutPayout(reward)
     }
@@ -215,10 +210,10 @@ func main() {
     tezos.Initialize()
 
     // read in password
-    //fmt.Printf("Password:")
-    //bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-    //password := string(bytePassword)
-    //Config.Password = strings.TrimSpace(password)
+    fmt.Printf("Password:")
+    bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+    password := string(bytePassword)
+    Config.Password = strings.TrimSpace(password)
 
     for true {
         rewards := GetActuals(Config)

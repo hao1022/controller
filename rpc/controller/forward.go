@@ -41,16 +41,18 @@ func Get(config Config, forward Forwarding, context map[string]string) []byte {
         }
     }
     url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Host, target)
-    fmt.Println(url)
+    //fmt.Println(url)
     resp, _ := http.Get(url)
     defer resp.Body.Close()
     body, _ := ioutil.ReadAll(resp.Body)
     return body
 }
 
-func Post(config Config, forward Forwarding, context map[string]string) []byte {
+func Post(config Config, forward Forwarding, context map[string]string, data_str string) []byte {
     target := forward.Target
-    data_str := forward.Data
+    if data_str == "" {
+        data_str = forward.Data
+    }
     if context != nil {
         for param, value := range context {
             pattern := "$" + param
@@ -58,8 +60,8 @@ func Post(config Config, forward Forwarding, context map[string]string) []byte {
 	    data_str = strings.Replace(data_str, pattern, value, -1)
 	}
     }
-    url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Host, target)
     data := []byte(data_str)
+    url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Host, target)
     resp, _ := http.Post(url, forward.ContentType, bytes.NewBuffer(data))
     defer resp.Body.Close()
     body, _ := ioutil.ReadAll(resp.Body)
