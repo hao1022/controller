@@ -57,7 +57,8 @@ type CurrentLevelType struct{
 }
 
 type OperationResultType struct{
-    Status      string  `json:"status"`
+    Status          string  `json:"status"`
+    BalanceUpdates  []BalanceUpdateType    `json:"balance_updates"`
 }
 
 type OperationMetadataType struct{
@@ -81,11 +82,21 @@ type OperationContentAndResultType struct{
     Metadata    OperationMetadataType `json:"metadata"`
 }
 
+type OperationContentsAndResultsType struct{
+    Contents    []OperationContentAndResultType `json:"contents"`
+}
+
 type OperationType struct{
     Protocol string   `json:"protocol"`
     Hash     string   `json:"hash"`
     Branch   string   `json:"branch"`
     Contents []OperationContentType  `json:"contents"`
+}
+
+type PreapplyResultType struct{
+    Kind     string   `json:"kind"`
+    Id       string   `json:"id"`
+    Implicit string   `json:"implicit"`
 }
 
 //type OperationResultType struct{

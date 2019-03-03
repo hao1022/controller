@@ -104,6 +104,27 @@
 	    "content_type": "application/json",
 	    "target": "/chains/main/blocks/head/helpers/scripts/run_operation",
 	    "params": []
+	},
+	{
+	    "source": "/forge_operations",
+	    "method": "post",
+	    "content_type": "application/json",
+	    "target": "/chains/main/blocks/head/helpers/forge/operations",
+	    "params": []
+	},
+	{
+	    "source": "/preapply_operations",
+	    "method": "post",
+	    "content_type": "application/json",
+	    "target": "/chains/main/blocks/head/helpers/preapply/operations",
+	    "params": []
+	},
+	{
+	    "source": "/injection",
+	    "method": "post",
+	    "content_type": "application/json",
+	    "target": "/injection/operation?chain=main",
+	    "params": []
 	}
     ]
 }

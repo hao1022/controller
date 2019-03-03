@@ -2,7 +2,7 @@ package tezos
 
 import (
     "strconv"
-    "fmt"
+    _ "fmt"
     "../../rpc/controller"
     "encoding/json"
 )
@@ -155,12 +155,42 @@ func Counter(contract string) int {
     return counter
 }
 
-func RunOperation(data string) OperationContentAndResultType {
-    var result OperationContentAndResultType
+func RunOperation(data string) OperationContentsAndResultsType {
+    var result OperationContentsAndResultsType
     config := controller.Configurations["tezos"]
     url := *config.Indices["/run_operation"]
     body := controller.Post(config, url, map[string]string{}, data)
     json.Unmarshal(body, &result)
-    fmt.Println(string(body))
+    //fmt.Println(string(body))
+    return result
+}
+
+func ForgeOperations(data string) string {
+    var result string
+    config := controller.Configurations["tezos"]
+    url := *config.Indices["/forge_operations"]
+    body := controller.Post(config, url, map[string]string{}, data)
+    json.Unmarshal(body, &result)
+    //fmt.Println(string(body))
+    return result
+}
+
+func PreapplyOperations(data string) []PreapplyResultType {
+    var result []PreapplyResultType
+    config := controller.Configurations["tezos"]
+    url := *config.Indices["/preapply_operations"]
+    body := controller.Post(config, url, map[string]string{}, data)
+    json.Unmarshal(body, &result)
+    //fmt.Println(string(body))
+    return result
+}
+
+func Injection(data string) string {
+    var result string
+    config := controller.Configurations["tezos"]
+    url := *config.Indices["/injection"]
+    body := controller.Post(config, url, map[string]string{}, data)
+    json.Unmarshal(body, &result)
+    //fmt.Println(string(body))
     return result
 }
