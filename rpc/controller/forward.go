@@ -43,6 +43,10 @@ func Get(config Config, forward Forwarding, context map[string]string) []byte {
     url := fmt.Sprintf("%s://%s%s", config.Protocol, config.Host, target)
     //fmt.Println(url)
     resp, _ := http.Get(url)
+    if resp == nil {
+	fmt.Println("%s get nil response", url)
+        return nil
+    }
     defer resp.Body.Close()
     body, _ := ioutil.ReadAll(resp.Body)
     return body

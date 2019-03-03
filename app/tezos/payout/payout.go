@@ -15,6 +15,7 @@ import (
 type ConfigType struct {
     TezosClientPath   string
     Baker             string
+    Account           string
     CycleLength       int
     SnapshotInterval  int
     Delegate          string
@@ -29,12 +30,13 @@ type ConfigType struct {
 var Config ConfigType = ConfigType{
     "/home/ubuntu/tezos/tezos-client", // path to tezos-client
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // baker account
+    "infstones",  // key name
     4096, // cycle length, const
     256,  // snapshot interval, const
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
     15, // fee percent, 15% by default
-    64, // starting cycle
+    71, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
     ""} // password, to be input
@@ -195,7 +197,6 @@ func Payout(rewards []RewardType) {
 		    continue
 		}
 		amount := reward.DelegatorRewards[i]
-		//amount_str := strconv.FormatFloat(amount, 'g', 6, 64)
 		amount_str := strconv.Itoa(amount)
 
 		counter = counter + 1
@@ -220,5 +221,4 @@ func main() {
         Payout(rewards)
         time.Sleep(10 * time.Second)
     }
-    //fmt.Printf("%d", tezos.Counter("tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH"))
 }
