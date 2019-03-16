@@ -202,7 +202,8 @@ func Payout(rewards []RewardType) {
 
 		counter = counter + 1
 
-                Transfer(Config, counter, amount_str, reward.Delegators[i])
+		txn := Transfer(Config, counter, amount_str, reward.Delegators[i])
+		fmt.Println(txn)
         }
         WriteOutPayout(reward)
     }
