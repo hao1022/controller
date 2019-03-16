@@ -207,7 +207,7 @@ func Payout(rewards []RewardType) {
 		txn := Transfer(Config, counter, amount_str, reward.Delegators[i])
 		fmt.Println(txn)
 		// wait for the prev transaction to get posted
-		time.Sleep(60 * time.Second)
+		time.Sleep(70 * time.Second)
         }
         WriteOutPayout(reward)
     }
