@@ -217,9 +217,9 @@ func main() {
     password := string(bytePassword)
     Config.Password = strings.TrimSpace(password)
 
-    for true {
+//    for true {
         rewards := GetActuals(Config)
         Payout(rewards)
-        time.Sleep(10 * time.Second)
-    }
+//        time.Sleep(10 * time.Second)
+//    }
 }
