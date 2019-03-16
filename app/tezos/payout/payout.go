@@ -36,7 +36,7 @@ var Config ConfigType = ConfigType{
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
     15, // fee percent, 15% by default
-    71, // starting cycle
+    72, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
     ""} // password, to be input
