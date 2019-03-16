@@ -142,10 +142,10 @@ func GetPaidCycle() int {
 
 func GetActuals(config ConfigType) []RewardType {
     var rewards []RewardType
-    current_level := tezos.CurrentLevel()
-    current_cycle := current_level.Cycle
+    //current_level := tezos.CurrentLevel()
+    //current_cycle := current_level.Cycle
     paid_cycle := GetPaidCycle()
-    delivered_cycle := current_cycle - 6
+    //delivered_cycle := current_cycle - 6
     //for cycle := paid_cycle + 1; cycle <= delivered_cycle; cycle++ {
     for cycle := paid_cycle + 1; cycle <= paid_cycle + 1; cycle++ {
         rewards = append(rewards, GetActualsForCycle(config, cycle))
