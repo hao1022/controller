@@ -190,13 +190,15 @@ func WriteOutPayout(reward RewardType) {
 }
 
 func Payout(rewards []RewardType) {
-    counter := tezos.Counter(Config.Delegate)
     for _, reward := range rewards {
         for i, _ := range reward.Delegators {
 		// format command
 		if reward.DelegatorRewards[i] == 0 {
 		    continue
 		}
+
+                counter := tezos.Counter(Config.Delegate)
+
 		amount := reward.DelegatorRewards[i]
 		amount_str := strconv.Itoa(amount)
 
@@ -204,6 +206,8 @@ func Payout(rewards []RewardType) {
 
 		txn := Transfer(Config, counter, amount_str, reward.Delegators[i])
 		fmt.Println(txn)
+		// wait for the prev transaction to get posted
+		time.Sleep(30 * time.Second)
         }
         WriteOutPayout(reward)
     }
