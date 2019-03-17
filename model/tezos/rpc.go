@@ -2,6 +2,7 @@ package tezos
 
 import (
     "strconv"
+    "errors"
     "../../rpc/controller"
     "encoding/json"
 )
@@ -154,38 +155,46 @@ func Counter(contract string) int {
     return counter
 }
 
-func RunOperation(data string) OperationContentsAndResultsType {
+func RunOperation(data string) (OperationContentsAndResultsType, error) {
     var result OperationContentsAndResultsType
     config := controller.Configurations["tezos"]
     url := *config.Indices["/run_operation"]
     body := controller.Post(config, url, map[string]string{}, data)
-    json.Unmarshal(body, &result)
-    return result
+    if json.Unmarshal(body, &result) == nil {
+        return result, nil
+    }
+    return result, errors.New(string(body))
 }
 
-func ForgeOperations(data string) string {
+func ForgeOperations(data string) (string, error) {
     var result string
     config := controller.Configurations["tezos"]
     url := *config.Indices["/forge_operations"]
     body := controller.Post(config, url, map[string]string{}, data)
-    json.Unmarshal(body, &result)
-    return result
+    if json.Unmarshal(body, &result) == nil {
+	return result, nil
+    }
+    return result, errors.New(string(body))
 }
 
-func PreapplyOperations(data string) []PreapplyResultType {
+func PreapplyOperations(data string) ([]PreapplyResultType, error) {
     var result []PreapplyResultType
     config := controller.Configurations["tezos"]
     url := *config.Indices["/preapply_operations"]
     body := controller.Post(config, url, map[string]string{}, data)
-    json.Unmarshal(body, &result)
-    return result
+    if json.Unmarshal(body, &result) == nil {
+	return result, nil
+    }
+    return result, errors.New(string(body))
 }
 
-func Injection(data string) string {
+func Injection(data string) (string, error) {
     var result string
     config := controller.Configurations["tezos"]
     url := *config.Indices["/injection"]
     body := controller.Post(config, url, map[string]string{}, data)
-    json.Unmarshal(body, &result)
-    return result
+    if json.Unmarshal(body, &result) == nil {
+        return result, nil
+    }
+    return result, errors.New(string(body))
 }

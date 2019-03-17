@@ -6,10 +6,9 @@ import (
     "../../../model/tezos"
     "strconv"
     "os"
-    "syscall"
     "strings"
     "bufio"
-    "golang.org/x/crypto/ssh/terminal"
+    "io/ioutil"
 )
 
 type ConfigType struct {
@@ -24,6 +23,7 @@ type ConfigType struct {
     StartingCycle     int
     Endpoint          string
     PayoutRecords     string
+    PasswordFile      string
     Password          string
 }
 
@@ -39,6 +39,7 @@ var Config ConfigType = ConfigType{
     81, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
+    "/home/ubuntu/tezos/.password", // password file
     ""} // password, to be input
 
 type StolenBlockType struct {
@@ -202,36 +203,46 @@ func Payout(rewards []RewardType) {
 	        continue
 	    }
 
-            counter := tezos.Counter(Config.Delegate)
-
 	    amount := reward.DelegatorRewards[i]
 	    amount_str := strconv.Itoa(amount)
 
-	    counter = counter + 1
+	    err := Transfer(Config, /*account=*/Config.Account,
+	                    /*amount=*/amount_str, /*from=*/Config.Baker,
+			    /*to=*/reward.Delegators[i])
 
-	    txn_hash := Transfer(Config, counter, amount_str, reward.Delegators[i])
-	    if txn_hash != "" {
-		fmt.Printf("Transfer Txn Hash: %s\n", txn_hash)
+	    if err == nil {
+	        // wait for the prev transaction to get posted
+                time.Sleep(70 * time.Second)
 	    } else {
-		fmt.Println("Transfer failed")
+		transfer_cmd := fmt.Sprintf("%s -A %s transfer %.3f from %s to %s",
+                           /*client=*/Config.TezosClientPath,
+			   /*endpoint=*/Config.Endpoint,
+			   /*amount=*/float64(amount) / 1000000.0,
+			   /*account=*/Config.Account,
+			   /*dest=*/reward.Delegators[i])
+		fmt.Println("Transfer failed, try manual transfer with ",
+		            transfer_cmd)
 	    }
-
-	    // wait for the prev transaction to get posted
-            time.Sleep(70 * time.Second)
         }
         WriteOutPayout(reward)
     }
+}
+
+func ReadPassword() {
+    dat, err := ioutil.ReadFile(Config.PasswordFile)
+    if err != nil {
+        fmt.Println("An error occured: ", err)
+	return
+    }
+    Config.Password = strings.TrimSpace(string(dat))
 }
 
 func main() {
     tezos.Initialize()
 
     // read in password
-    fmt.Printf("Password:")
-    bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-    password := string(bytePassword)
-    Config.Password = strings.TrimSpace(password)
-    fmt.Println("")
+    ReadPassword()
+    fmt.Println("Password read")
 
     for true {
         rewards := GetActuals(Config)
