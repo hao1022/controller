@@ -235,9 +235,6 @@ func main() {
 
     for true {
         rewards := GetActuals(Config)
-	if rewards == nil {
-	    return
-	}
         Payout(rewards)
         time.Sleep(10 * time.Second)
     }
