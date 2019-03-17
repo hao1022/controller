@@ -36,7 +36,7 @@ var Config ConfigType = ConfigType{
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
     15, // fee percent, 15% by default
-    79, // starting cycle
+    80, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
     ""} // password, to be input
@@ -198,7 +198,7 @@ func Payout(rewards []RewardType) {
 	PrintReward(reward)
         for i, _ := range reward.Delegators {
 	    // format command
-	    if reward.DelegatorRewards[i] == 0 {
+	    if reward.DelegatorRewards[i] < 1000 {
 	        continue
 	    }
 
