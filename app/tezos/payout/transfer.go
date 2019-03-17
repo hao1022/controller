@@ -17,7 +17,6 @@ import (
 func Sign(config ConfigType, operation string) string {
     signature := ""
     op_bytes := fmt.Sprintf("0x03%s", operation)
-    fmt.Println(op_bytes)
     process := exec.Command(
 	    config.TezosClientPath, "-A",
 	    config.Endpoint, "sign", "bytes", op_bytes,
@@ -52,7 +51,7 @@ func Transfer(config ConfigType, counter int, amount string, delegate string) st
         Kind: "transaction",
 	Amount: amount,
 	Source: config.Baker,
-        Fee: "3000",
+        Fee: "1300",
 	Counter: count,
 	GasLimit: "11000",
 	StorageLimit: "0",
@@ -62,20 +61,20 @@ func Transfer(config ConfigType, counter int, amount string, delegate string) st
 
     run_json := fmt.Sprintf("{\"branch\": \"%s\", \"contents\": [%s], \"signature\": \"%s\"}",
                            header.Hash, txn_str, signature)
-    fmt.Println(run_json)
     run_json_result := tezos.RunOperation(run_json)
     if run_json_result.Contents == nil || run_json_result.Contents[0].Metadata.Result.Status != "applied" {
-        fmt.Println(run_json_result)
+	fmt.Println("RunOperation failed:")
+        fmt.Println(run_json)
         return ""
     }
 
     sign_json := fmt.Sprintf("{\"branch\": \"%s\", \"contents\": [%s]}", header.Hash, txn_str)
     sign_json_result := tezos.ForgeOperations(sign_json)
-    fmt.Println(sign_json_result)
 
     sig := Sign(config, sign_json_result)
     if sig == "" {
-        fmt.Println("Signing failed")
+	fmt.Println("Signing failed")
+        fmt.Println(run_json)
 	return ""
     }
 
@@ -89,7 +88,8 @@ func Transfer(config ConfigType, counter int, amount string, delegate string) st
 	    header.Protocol, header.Hash, txn_str, sig)
     preapply_json_result := tezos.PreapplyOperations(preapply_json)
     if preapply_json_result == nil {
-        fmt.Println(preapply_json_result)
+	fmt.Println("Preapply failed:")
+	fmt.Println(run_json)
 	return ""
     }
 

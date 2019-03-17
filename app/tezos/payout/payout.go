@@ -36,7 +36,7 @@ var Config ConfigType = ConfigType{
     "tz1awXW7wuXy21c66vBudMXQVAPgRnqqwgTH", // delegate account
     "infstones", // delegate name
     15, // fee percent, 15% by default
-    72, // starting cycle
+    79, // starting cycle
     "54.188.118.102", // Tezos node to connect to
     "/home/ubuntu/tezos/.payout_records", // payout record file
     ""} // password, to be input
@@ -107,7 +107,8 @@ func GetActualsForCycle(config ConfigType, cycle int) RewardType {
 	    fee_rewards, _ := strconv.Atoi(balance.Fees)
 	    balance_rewards, _ := strconv.Atoi(balance.Rewards)
 	    realized_rewards := fee_rewards + balance_rewards
-            reward = CalculateRewardsFor(cycle_length, snapshot_interval, cycle, baker, realized_rewards, fee_percent)
+            reward = CalculateRewardsFor(cycle_length, snapshot_interval, cycle,
+	                                 baker, realized_rewards, fee_percent)
 	}
     }
     return reward
@@ -118,6 +119,7 @@ func GetPaidCycle() int {
     file, err := os.Open(Config.PayoutRecords)
     if err != nil {
         fmt.Println("An error occured: ", err)
+	return 0
     }
     defer file.Close()
     scanner := bufio.NewScanner(file)
@@ -136,39 +138,41 @@ func GetPaidCycle() int {
     }
     if err := scanner.Err(); err != nil {
         fmt.Println("An error occured: ", err)
+	return 0
     }
     return paid_cycle
 }
 
 func GetActuals(config ConfigType) []RewardType {
     var rewards []RewardType
-    //current_level := tezos.CurrentLevel()
-    //current_cycle := current_level.Cycle
+    current_level := tezos.CurrentLevel()
+    current_cycle := current_level.Cycle
     paid_cycle := GetPaidCycle()
-    //delivered_cycle := current_cycle - 6
-    //for cycle := paid_cycle + 1; cycle <= delivered_cycle; cycle++ {
-    for cycle := paid_cycle + 1; cycle <= paid_cycle + 1; cycle++ {
+    if paid_cycle == 0 {
+	 fmt.Println("Can not get paid cycle")
+	 return nil
+    }
+    delivered_cycle := current_cycle - 6
+    for cycle := paid_cycle + 1; cycle <= delivered_cycle; cycle++ {
         rewards = append(rewards, GetActualsForCycle(config, cycle))
     }
     return rewards
 }
 
-func PrintRewards(rewards []RewardType) {
-    for _, reward := range rewards {
-        fmt.Printf("Cycle:%d\n", reward.Cycle)
-        fmt.Printf("BakerSelf Reward:%d\n", reward.BakerRewards.SelfReward)
-        fmt.Printf("Baker Fee Reward:%d\n", reward.BakerRewards.FeeReward)
-        fmt.Printf("Baker Total Reward:%d\n", reward.BakerRewards.TotalReward)
-        for i, _ := range reward.Delegators {
-                fmt.Println(reward.Delegators[i])
-                fmt.Printf("  Balance:%d\n", reward.DelegatorBalances[i])
-                fmt.Printf("  RawReward:%d\n", reward.DelegatorRawRewards[i])
-                fmt.Printf("  Reward:%d\n", reward.DelegatorRewards[i])
-                fmt.Printf("  Share:%.2f%%\n", reward.DelegatorShares[i])
-        }
-        fmt.Printf("Staking Balance:%d\n", reward.StakingBalance)
-        fmt.Printf("Total Reward:%d\n", reward.TotalReward)
+func PrintReward(reward RewardType) {
+    fmt.Printf("Paid Cycle: %d\n", reward.Cycle)
+    fmt.Printf("Baker Self Reward: %d\n", reward.BakerRewards.SelfReward)
+    fmt.Printf("Baker Fee Reward: %d\n", reward.BakerRewards.FeeReward)
+    fmt.Printf("Baker Total Reward: %d\n", reward.BakerRewards.TotalReward)
+    for i, _ := range reward.Delegators {
+            fmt.Println(reward.Delegators[i])
+            fmt.Printf("  Balance: %d\n", reward.DelegatorBalances[i])
+            fmt.Printf("  RawReward: %d\n", reward.DelegatorRawRewards[i])
+            fmt.Printf("  Reward: %d\n", reward.DelegatorRewards[i])
+            fmt.Printf("  Share: %.2f%%\n", reward.DelegatorShares[i])
     }
+    fmt.Printf("Staking Balance: %d\n", reward.StakingBalance)
+    fmt.Printf("Total Reward: %d\n", reward.TotalReward)
 }
 
 func WriteOutPayout(reward RewardType) {
@@ -191,23 +195,29 @@ func WriteOutPayout(reward RewardType) {
 
 func Payout(rewards []RewardType) {
     for _, reward := range rewards {
+	PrintReward(reward)
         for i, _ := range reward.Delegators {
-		// format command
-		if reward.DelegatorRewards[i] == 0 {
-		    continue
-		}
+	    // format command
+	    if reward.DelegatorRewards[i] == 0 {
+	        continue
+	    }
 
-                counter := tezos.Counter(Config.Delegate)
+            counter := tezos.Counter(Config.Delegate)
 
-		amount := reward.DelegatorRewards[i]
-		amount_str := strconv.Itoa(amount)
+	    amount := reward.DelegatorRewards[i]
+	    amount_str := strconv.Itoa(amount)
 
-		counter = counter + 1
+	    counter = counter + 1
 
-		txn := Transfer(Config, counter, amount_str, reward.Delegators[i])
-		fmt.Println(txn)
-		// wait for the prev transaction to get posted
-		time.Sleep(70 * time.Second)
+	    txn_hash := Transfer(Config, counter, amount_str, reward.Delegators[i])
+	    if txn_hash != "" {
+		fmt.Printf("Transfer Txn Hash: %s\n", txn_hash)
+	    } else {
+		fmt.Println("Transfer failed")
+	    }
+
+	    // wait for the prev transaction to get posted
+            time.Sleep(70 * time.Second)
         }
         WriteOutPayout(reward)
     }
@@ -221,10 +231,14 @@ func main() {
     bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
     password := string(bytePassword)
     Config.Password = strings.TrimSpace(password)
+    fmt.Println("")
 
-//    for true {
+    for true {
         rewards := GetActuals(Config)
+	if rewards == nil {
+	    return
+	}
         Payout(rewards)
-//        time.Sleep(10 * time.Second)
-//    }
+        time.Sleep(10 * time.Second)
+    }
 }

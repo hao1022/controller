@@ -2,7 +2,6 @@ package tezos
 
 import (
     "strconv"
-    _ "fmt"
     "../../rpc/controller"
     "encoding/json"
 )
@@ -161,7 +160,6 @@ func RunOperation(data string) OperationContentsAndResultsType {
     url := *config.Indices["/run_operation"]
     body := controller.Post(config, url, map[string]string{}, data)
     json.Unmarshal(body, &result)
-    //fmt.Println(string(body))
     return result
 }
 
