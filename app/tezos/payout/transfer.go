@@ -51,7 +51,7 @@ func Transfer(config ConfigType, counter int, amount string, delegate string) st
         Kind: "transaction",
 	Amount: amount,
 	Source: config.Baker,
-        Fee: "2300",
+        Fee: "3000",
 	Counter: count,
 	GasLimit: "11000",
 	StorageLimit: "0",
